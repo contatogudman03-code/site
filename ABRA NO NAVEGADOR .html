@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Caso de Pós-Venda: Claude Code</title>
+ 
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@400;500&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+      /* ===========================================
+           CSS CUSTOM PROPERTIES (THEME)
+           =========================================== */
+      :root {
+        --bg-primary: #151413;     /* Claude Dark Mode Bg */
+        --bg-secondary: #252422;   /* Claude Secondary Bg */
+        --bg-terminal: #0A0908;    /* Dark terminal */
+        --text-primary: #EFECE6;   /* Claude off-white text */
+        --text-secondary: #A09D98;  
+        --accent: #D97757;         /* Claude Terracotta/Peach Accent */
+        --accent-glow: rgba(217, 119, 87, 0.2);
+        --code-green: #A3BE8C;
+        --code-cyan: #88C0D0;
+
+        /* Typography: Claude Brand (Serif Display + Clean Sans Body) */
+        --font-display: "Cormorant Garamond", serif;
+        --font-body: "DM Sans", sans-serif;
+        --font-mono: "JetBrains Mono", monospace;
+
+        --title-size: clamp(2.5rem, 6vw, 4.5rem);
+        --subtitle-size: clamp(1.2rem, 2vw, 1.5rem);
+        --body-size: clamp(0.9rem, 1.3vw, 1.2rem);
+
+        /* Spacing */
+        --slide-padding: clamp(1.5rem, 4vw, 4rem);
+        --content-gap: clamp(1rem, 2vw, 2.5rem);
+
+        /* Animation */
+        --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        --duration-normal: 0.8s;
+      }
+
+      /* ===========================================
+           VIEWPORT FITTING
+           =========================================== */
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { height: 100%; overflow-x: hidden; }
+      html { scroll-snap-type: y mandatory; scroll-behavior: smooth; background-color: var(--bg-primary); color: var(--text-primary); font-family: var(--font-body); }
+      .slide { width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; scroll-snap-align: start; display: flex; flex-direction: column; position: relative; }
+      .slide-content { flex: 1; display: flex; flex-direction: column; justify-content: center; max-height: 100%; overflow: hidden; padding: var(--slide-padding); align-items: flex-start; max-width: 1200px; margin: 0 auto; width: 100%; }
+      :root { --title-size: clamp(1.5rem, 5vw, 4rem); --h2-size: clamp(1.25rem, 3.5vw, 2.5rem); --h3-size: clamp(1rem, 2.5vw, 1.75rem); --body-size: clamp(0.75rem, 1.5vw, 1.125rem); --small-size: clamp(0.65rem, 1vw, 0.875rem); --slide-padding: clamp(1rem, 4vw, 4rem); --content-gap: clamp(0.5rem, 2vw, 2rem); --element-gap: clamp(0.25rem, 1vw, 1rem); }
+      .card, .container, .content-box { max-width: min(90vw, 1000px); max-height: min(80vh, 700px); }
+      .feature-list, .bullet-list { gap: clamp(0.4rem, 1vh, 1rem); display: flex; flex-direction: column; list-style: none; }
+      .feature-list li, .bullet-list li { font-size: var(--body-size); line-height: 1.5; padding-left: 1.5rem; position: relative; }
+      .feature-list li::before, .bullet-list li::before { content: '>'; position: absolute; left: 0; color: var(--accent); font-family: var(--font-mono); font-weight: bold; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: clamp(0.5rem, 1.5vw, 1rem); }
+      img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fit: contain; }
+      @media (max-height: 700px) { :root { --slide-padding: clamp(0.75rem, 3vw, 2rem); --content-gap: clamp(0.4rem, 1.5vw, 1rem); --title-size: clamp(1.25rem, 4.5vw, 2.5rem); --h2-size: clamp(1rem, 3vw, 1.75rem); } }
+      @media (max-height: 600px) { :root { --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem); --content-gap: clamp(0.3rem, 1vw, 0.75rem); --title-size: clamp(1.1rem, 4vw, 2rem); --body-size: clamp(0.7rem, 1.2vw, 0.95rem); } .nav-dots { display: none; } }
+      @media (max-height: 500px) { :root { --slide-padding: clamp(0.4rem, 2vw, 1rem); --title-size: clamp(1rem, 3.5vw, 1.5rem); --h2-size: clamp(0.9rem, 2.5vw, 1.25rem); --body-size: clamp(0.65rem, 1vw, 0.85rem); } }
+      @media (max-width: 600px) { :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); } .grid { grid-template-columns: 1fr; } }
+      @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; } html { scroll-behavior: auto; } }
+
+      /* ===========================================
+           SPECIAL VISUALS: CLAUDE CODE STYLE
+           =========================================== */
+      h1, h2, h3 { font-family: var(--font-display); font-weight: 800; line-height: 1.1; margin-bottom: var(--element-gap); color: var(--text-primary); }
+      p { margin-bottom: var(--element-gap); font-size: var(--body-size); line-height: 1.5; color: var(--text-secondary); max-width: 800px; }
+      
+      .accent { color: var(--accent); }
+      .mono-text { font-family: var(--font-mono); font-size: 0.9em; padding: 0.2em 0.4em; background: rgba(0,0,0,0.3); border-radius: 4px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05); }
+      
+      .terminal-window {
+        width: 100%; max-width: 900px; background: var(--bg-terminal); border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 8px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03);
+        margin-top: var(--content-gap);
+      }
+      .terminal-header {
+        height: 38px; background: rgba(255,255,255,0.03); display: flex; align-items: center; padding: 0 16px;
+        border-bottom: 1px solid rgba(255,255,255,0.05); gap: 8px; position: relative;
+      }
+      .mac-dots {
+        display: flex; gap: 8px;
+      }
+      .dot { width: 12px; height: 12px; border-radius: 50%; }
+      .dot.red { background: #FF5F56; }
+      .dot.yellow { background: #FFBD2E; }
+      .dot.green { background: #27C93F; }
+      
+      .terminal-title {
+        position: absolute; width: 100%; text-align: center; left: 0; font-family: var(--font-mono);
+        font-size: 13px; color: var(--text-secondary); pointer-events: none;
+      }
+
+      .terminal-body {
+        padding: 24px; font-family: var(--font-mono); font-size: var(--body-size);
+        line-height: 1.6; color: var(--text-primary);
+      }
+      .prompt::before { content: '❯ '; color: var(--accent); font-weight: bold; }
+      .success::before { content: '✔ '; color: var(--code-green); font-weight: bold; }
+      .info::before { content: 'ℹ '; color: var(--code-cyan); font-weight: bold; }
+      
+      .badge {
+        display: inline-block; font-family: var(--font-mono); font-size: var(--small-size);
+        text-transform: uppercase; letter-spacing: 0.1em; color: var(--bg-primary); background: var(--accent);
+        padding: 4px 8px; border-radius: 4px; font-weight: bold; margin-bottom: 16px;
+      }
+
+      /* ===========================================
+           ANIMATIONS 
+           =========================================== */
+      .reveal {
+        opacity: 0; transform: translateY(20px);
+        transition: opacity var(--duration-normal) var(--ease-out-expo),
+                    transform var(--duration-normal) var(--ease-out-expo);
+      }
+      .slide.visible .reveal { opacity: 1; transform: translateY(0); }
+      .reveal:nth-child(1) { transition-delay: 0.1s; }
+      .reveal:nth-child(2) { transition-delay: 0.2s; }
+      .reveal:nth-child(3) { transition-delay: 0.3s; }
+      .reveal:nth-child(4) { transition-delay: 0.4s; }
+      .reveal:nth-child(5) { transition-delay: 0.5s; }
+
+      .typewriter-text {
+        overflow: hidden; white-space: pre-wrap; margin: 0 auto; letter-spacing: normal;
+        animation: typing 1.5s steps(40, end) forwards;
+        display: inline-block; vertical-align: top; width: 100%; max-height: 0; opacity: 0;
+      }
+      .slide.visible .typewriter-text {
+        animation: typing 1.5s steps(40, end) forwards;
+        animation-delay: 0.3s;
+      }
+      
+      .cursor-blink::after {
+        content: '▋'; animation: blink 1s step-end infinite; color: var(--accent); margin-left: 4px;
+      }
+
+      @keyframes typing {
+        from { max-height: 0; opacity: 0; }
+        to { max-height: 900px; opacity: 1; }
+      }
+      @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+      /* Nav Dots */
+      .nav-dots { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 12px; z-index: 100; }
+      .nav-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-secondary); opacity: 0.3; cursor: pointer; transition: all 0.3s; border: none; padding: 0; }
+      .nav-dot.active { opacity: 1; background: var(--accent); transform: scale(1.3); }
+
+      /* Progress bar */
+      .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--accent); z-index: 100; transition: width 0.3s; width: 0%; box-shadow: 0 0 10px var(--accent-glow); }
+    </style>
+  </head>
+  <body>
+    <div class="progress-bar"></div>
+    <nav class="nav-dots"></nav>
+
+    <!-- Slide 1: Capa -->
+    <section class="slide title-slide">
+      <div class="slide-content" style="align-items: center; text-align: center;">
+        <div class="reveal badge">Caso de Estudo</div>
+        <h1 class="reveal" style="font-size: var(--title-size);"><span class="accent">Claude Code</span> (Anthropic)</h1>
+        <p class="reveal mono-text" style="font-size: var(--subtitle-size); max-width: 100%; margin-top: 1rem;">>_ O Novo Pós-Venda nas IAs Generativas</p>
+        <p class="reveal" style="margin-top: 3rem; color: var(--text-secondary); font-size: var(--small-size);">Arthur Fernandes - T13</p>
+      </div>
+    </section>
+
+    <!-- Slide 2: Contexto -->
+    <section class="slide">
+      <div class="slide-content">
+        <h2 class="reveal">Contexto & Desafio</h2>
+        <div class="reveal terminal-window">
+          <div class="terminal-header">
+            <div class="mac-dots">
+              <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+            </div>
+            <div class="terminal-title">contexto.sh</div>
+          </div>
+          <div class="terminal-body" style="display: flex; flex-direction: column; gap: 12px;">
+            <div class="prompt">Líder Mundial em IA: <span style="color: var(--text-primary)">Anthropic</span></div>
+            <div class="prompt">Ferramenta: <span class="mono-text">Claude Code</span> (CLI - Interface de Linha de Comando)</div>
+            <div class="info">Cenário 2025/2026: Vender a IA não é mais o principal desafio.</div>
+            <div class="success cursor-blink">O verdadeiro desafio é a <span style="color: var(--accent)">Confiança</span>.</div>
+            <div style="color: var(--text-secondary); margin-top: 8px; font-size: 0.9em; line-height: 1.6;">
+              <span style="color: var(--code-green)">// O programador precisa confiar em uma ferramenta com acesso direto aos arquivos críticos do computador.</span><br>
+              <span style="color: var(--code-green)">// O modelo de pós-venda necessita ser preventivo e extremamente técnico.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 3: Ação de Pós Venda -->
+    <section class="slide">
+      <div class="slide-content">
+        <h2 class="reveal">A Ação de Pós-Venda</h2>
+        <ul class="bullet-list reveal">
+          <li><strong>Direto no Fluxo de Trabalho:</strong> Sem envios demorados de formulários via e-mail.</li>
+          <li><strong>Feedback Integrado:</strong> Se a IA erra ou o código não compila, a ferramenta exibe um link instantâneo de reporte pelo GitHub ou Discord.</li>
+        </ul>
+        
+        <div class="reveal terminal-window" style="border-color: rgba(217, 119, 87, 0.3); box-shadow: 0 0 30px rgba(217, 119, 87, 0.05);">
+          <div class="terminal-body" style="padding: 16px 24px; font-size: 1em;">
+            <div style="color: var(--code-green); margin-bottom: 8px;">// A grande sacada:</div>
+            <div class="prompt"><span style="color: var(--accent);">O suporte deixou de ser um setor 'escondido' e passou a ser uma funcionalidade nativa.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 4: Análise do Impacto -->
+    <section class="slide">
+      <div class="slide-content">
+        <h2 class="reveal">Análise do Impacto</h2>
+        <p class="reveal"><strong>Por que funcionou:</strong> Pós-venda rápido, reativo e eficiente — diretamente no terminal.</p>
+        
+        <div class="grid reveal" style="margin-top: 2rem; width: 100%;">
+          <div class="terminal-window" style="margin-top: 0; background: rgba(255,255,255,0.02)">
+            <div class="terminal-body" style="text-align: center; padding: 24px 16px;">
+              <div style="font-size: 2rem; color: var(--accent); margin-bottom: 12px;">01</div>
+              <p class="mono-text" style="color: var(--text-primary); margin-bottom: 8px; white-space: normal;">Fidelização Técnica</p>
+              <p style="font-size: 0.8em; color: var(--text-secondary); margin: 0;">O dev reporta de forma simples e sente que está <strong>co-criando</strong> a ferramenta.</p>
+            </div>
+          </div>
+          <div class="terminal-window" style="margin-top: 0; background: rgba(255,255,255,0.02)">
+            <div class="terminal-body" style="text-align: center; padding: 24px 16px;">
+               <div style="font-size: 2rem; color: var(--accent); margin-bottom: 12px;">02</div>
+              <p class="mono-text" style="color: var(--text-primary); margin-bottom: 8px; white-space: normal;">Sensação de Comunidade</p>
+              <p style="font-size: 0.8em; color: var(--text-secondary); margin: 0;">O pós-venda é alimentado por feedbacks transparentes e colaborativos.</p>
+            </div>
+          </div>
+          <div class="terminal-window" style="margin-top: 0; background: rgba(255,255,255,0.02)">
+            <div class="terminal-body" style="text-align: center; padding: 24px 16px;">
+               <div style="font-size: 2rem; color: var(--accent); margin-bottom: 12px;">03</div>
+              <p class="mono-text" style="color: var(--text-primary); margin-bottom: 8px; white-space: normal;">Redução do Medo</p>
+              <p style="font-size: 0.8em; color: var(--text-secondary); margin: 0;">Traz segurança para a aplicação de IAs até em <strong>projetos de missão crítica</strong>.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 5: Proposta de Melhoria -->
+    <section class="slide">
+      <div class="slide-content" style="align-items: center; text-align: center;">
+        <h2 class="reveal">Proposta de Melhoria</h2>
+        <p class="reveal mono-text" style="color: var(--text-secondary); margin-bottom: 1.5rem;">O que eu faria diferente? A questão dos Tokens.</p>
+        <p class="reveal" style="font-size: var(--body-size); color: var(--text-primary); margin-bottom: 2rem;">"No mundo das IAs, tempo é dinheiro e processamento custa tokens".</p>
+        
+        <div class="reveal terminal-window" style="text-align: left; margin: 0 auto; max-width: 750px;">
+          <div class="terminal-header">
+            <div class="mac-dots"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+            <div class="terminal-title">token-cashback.sh</div>
+          </div>
+          <div class="terminal-body">
+            <div class="prompt" style="color: var(--accent);">Criar o sistema de "Token Cashback"</div>
+            <br>
+            <div class="typewriter-text" style="color: var(--text-secondary); line-height: 1.8;">
+<span style="color: var(--code-cyan);">function</span> <span style="color: var(--text-primary);">compensarErroLogico</span>() {
+  <span style="color: var(--code-green);">// 1. O Funcionamento:</span>
+  Sempre que um dev reportar um erro confirmado
+  ele recebe automaticamente <span style="color: var(--accent);">créditos de tokens</span> na conta.
+  
+  <span style="color: var(--code-green);">// 2. O Custo Benefício:</span>
+  Transforma a frustração em investimento financeiro. 
+  Isso funciona como um atestado forte de confiança.
+}</div><span class="cursor-blink"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      /* ===========================================
+           SLIDE PRESENTATION CONTROLLER
+           =========================================== */
+      class SlidePresentation {
+        constructor() {
+          this.slides = document.querySelectorAll(".slide");
+          this.currentSlide = 0;
+          this.navDotsContainer = document.querySelector(".nav-dots");
+          this.progressBar = document.querySelector(".progress-bar");
+          
+          this.setupNavDots();
+          this.setupIntersectionObserver();
+          this.setupKeyboardNav();
+          this.setupWheelNav();
+          this.updateState();
+        }
+
+        setupIntersectionObserver() {
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("visible");
+                const index = Array.from(this.slides).indexOf(entry.target);
+                this.currentSlide = index;
+                this.updateState();
+              }
+            });
+          }, { threshold: 0.5 });
+
+          this.slides.forEach(slide => observer.observe(slide));
+        }
+
+        setupKeyboardNav() {
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+              e.preventDefault();
+              this.goToSlide(this.currentSlide + 1);
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+              e.preventDefault();
+              this.goToSlide(this.currentSlide - 1);
+            }
+          });
+        }
+
+        setupWheelNav() {
+          let isScrolling = false;
+          document.addEventListener('wheel', (e) => {
+            if (isScrolling) return;
+            isScrolling = true;
+            setTimeout(() => { isScrolling = false; }, 800);
+
+            if (e.deltaY > 50) this.goToSlide(this.currentSlide + 1);
+            else if (e.deltaY < -50) this.goToSlide(this.currentSlide - 1);
+          }, { passive: false });
+        }
+
+        setupNavDots() {
+          if (!this.navDotsContainer) return;
+          this.navDotsContainer.innerHTML = "";
+          
+          this.slides.forEach((_, i) => {
+            const dot = document.createElement("button");
+            dot.className = "nav-dot";
+            dot.setAttribute("aria-label", "Go to slide " + (i + 1));
+            dot.addEventListener("click", () => this.goToSlide(i));
+            this.navDotsContainer.appendChild(dot);
+          });
+        }
+
+        goToSlide(index) {
+          if (index >= 0 && index < this.slides.length) {
+            this.currentSlide = index;
+            this.slides[index].scrollIntoView({ behavior: 'smooth' });
+            this.updateState();
+          }
+        }
+
+        updateState() {
+          if (this.progressBar) {
+            const progress = (this.currentSlide / (this.slides.length - 1)) * 100;
+            this.progressBar.style.width = progress + "%";
+          }
+          
+          if (this.navDotsContainer) {
+            const dots = this.navDotsContainer.querySelectorAll(".nav-dot");
+            dots.forEach((dot, index) => {
+              if (index === this.currentSlide) dot.classList.add("active");
+              else dot.classList.remove("active");
+            });
+          }
+        }
+      }
+
+      // Inicializa
+      new SlidePresentation();
+    </script>
+  </body>
+</html>
